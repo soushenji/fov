@@ -1,0 +1,23 @@
+{
+  "name": "fov",
+  "version": "1.0.3",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node index.test.js"
+  },
+  "author": "soushenji",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soushenji/fov.git"
+  },
+  "keywords": [
+    "validator",
+    "validation",
+    "validate"
+  ]
+}
