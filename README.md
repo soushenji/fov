@@ -2,12 +2,17 @@
 
 An object validator in javascript for Node and modern browsers
 
+
 ### Install
 
 `npm install --save fov`
 
+```javascript
+const validator = new Validator();
+```
 
-### Validate a integer
+
+### Validate an integer
 
 ```javascript
 var input = { value: null };
@@ -19,6 +24,28 @@ let input = { value:'1'};
 let rules = { value: { type: 'integer'} };
 validator.validate(input, rules);
 // => [{ message: 'value must be an integer', field: 'value' }]
+```
+
+
+### Validate a number
+
+```javascript
+let input = { value:'hello'};
+let rules = { value: { type: 'number'} };
+validate(input, rules);
+validator.validate(input, rules);
+// => [{ message: 'value must be a number', field: 'value' }]
+
+let input = { value:'123'};
+let rules = { value: { type: 'number'} };
+validator.validate(input, rules);
+// => undefined
+
+let input = { value:'123'};
+let rules = { value: { type: 'number'} };
+let validator = new Validator({ convert: false });
+validator.validate(input, rules);
+// => [{ message: 'value must be a number', field: 'value' }]
 ```
 
 
@@ -80,7 +107,10 @@ let messages = {
     type: `sailor's name should be a string`,
     max:`name's length must be less than :max`
   },
-  age: { type: 'integer', min:`水手的年龄必须大于:min` }
+  age: {
+    type: '水手的年龄必须是一个整数',
+    min:`水手的年龄必须大于:min`
+  }
 };
 
 validator.validate(input, rules, messages);

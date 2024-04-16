@@ -1,12 +1,14 @@
 class Validator {
-  constructor(options = { language: 'en_US'}) {
-    this.translate = translate[options.language];
+  constructor(options = { language: 'en_US', convert:true}) {
+    this.translate = translate[options.language] || translate['en_US'];
     this.rules = {};
     this.field = ''; // 当前验证字段
+    this.convert = options.convert ? true : false;
     this.messages = null;
     this.errors = [];
     this.checkerMap = {
       integer: 'checkInteger',
+      number: 'checkNumber',
       string: 'checkString',
       boolean: 'checkBoolean'
     }
@@ -64,6 +66,8 @@ class Validator {
     this.messages = messages;
     this.errors = [];
 
+    if(this.convert) this.convertInput(input, rules);
+
     for(var key in rules){
       this.field = key;
       let rule = rules[this.field];
@@ -83,6 +87,37 @@ class Validator {
     }
 
     return this.errors.length ? this.errors : undefined;
+  }
+
+
+  convertInput(input, rules){
+    for(var key in rules){
+      let type = rules[key].type;
+
+      if(!input.hasOwnProperty(key) || input[key] === null || input[key] === undefined){
+        continue;
+      }
+
+      switch (type) {
+        case 'integer':
+          if(!Number.isNaN(parseInt(input[key]))) {
+            input[key] = parseInt(input[key]);
+          }
+          break;
+        case 'string':
+          input[key] = String(input[key]);
+          break;
+        case 'number':
+          if(!Number.isNaN(Number(input[key]))) {
+            input[key] = Number(input[key]);
+          }
+          break;
+        case 'boolean':
+          input[key] = !!input[key];
+          break;
+        default:;
+      }
+    }
   }
 
 
@@ -106,6 +141,30 @@ class Validator {
 
     if (rule.hasOwnProperty('min') && value < rule.min) {
       return this.message('integer.min');
+    }
+  }
+
+
+  checkNumber(rule, value){
+    if (value === null || Number.isNaN(value)) {
+      value = undefined;
+    }
+
+    if (typeof value === 'undefined') {
+      if (rule.required === false) return;
+      return this.message('number.required');
+    }
+
+    if (typeof value !== 'number') {
+      return this.message('number.type');
+    }
+
+    if (rule.hasOwnProperty('max') && value > rule.max) {
+      return this.message('number.max');
+    }
+
+    if (rule.hasOwnProperty('min') && value < rule.min) {
+      return this.message('number.min');
     }
   }
 
@@ -149,6 +208,36 @@ class Validator {
     }
   }
 
+
+  checkEmail(rule, value) {
+    if (typeof value === 'undefined') {
+      if (rule.required === false) return;
+      return this.message('integer.required');
+    }
+
+    if (typeof value !== 'boolean') {
+      return this.message('boolean.type');
+    }
+  }
+
+
+  checkPassword(rule, value){
+
+  }
+
+
+  checkDate(rule, value){
+
+  }
+
+
+  checkDatetime(rule, value){
+
+  }
+
+  
+
+
 }
 
 module.exports = Validator;
@@ -166,6 +255,10 @@ translate['en_US'] = {
   'integer.type': ':field must be an integer',
   "integer.max": `:field must be less than :max`,
   'integer.min': ':field must be greater than :min',
+  'number.required': ':field is required',
+  'number.type': ':field must be a number',
+  'number.max': `:field must be less than :max`,
+  'number.min': ':field must be greater than :min',
   'string.required': ':field is required',
   'string.type': ':field must be a string',
   'string.max': ':field length must be less than :max',
@@ -182,6 +275,10 @@ translate['zh_CN']= {
   'integer.type': ':field必须是整数',
   'integer.max': `:field的长度必须小于:max`,
   'integer.min': `:field的长度必须大于:min`,
+  'number.required': ':field是必须的',
+  'number.type': ':field必须是整数',
+  'number.max': `:field的长度必须小于:max`,
+  'number.min': `:field的长度必须大于:min`,
   'string.required': ':field是必须的',
   'string.type': ':field必须是字符串',
   'string.max': `:field长度必须小于:max`,

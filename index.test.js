@@ -30,10 +30,25 @@ test('integer', async (t) => {
   });
 
   await t.test('must be an integer', () => {
-    let input = { value:'ss'};
+    let input = { value:'hello'};
     let rules = { value: { type: 'integer'} };
     let error = validator.validate(input, rules)[0];
     assert.deepEqual(error, { message: 'value must be an integer', field: 'value' });
+  });
+
+  await t.test('must be an integer with convert', () => {
+    let input = { value:'123'};
+    let rules = { value: { type: 'integer'} };
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
+  });
+
+  await t.test('must be an integer without convert', () => {
+    let input = { value:'123'};
+    let rules = { value: { type: 'integer'} };
+    let validator = new Validator({convert:false});
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, [{ message: 'value must be an integer', field: 'value' }]);
   });
 
   await t.test('required true work fine with null', () => {
@@ -55,6 +70,95 @@ test('integer', async (t) => {
     let rules = { value: { type: 'integer', required: false } };
     let error = validator.validate(input, rules);
     assert.deepEqual(error, undefined);
+  });
+});
+
+
+
+test('number', async (t) => {
+  await t.test('required true work fine with undefined', () => {
+    let input = {};
+    let rules = { value: { type: 'number' } };
+    let error = validator.validate(input, rules)[0];
+    assert.deepEqual(error, { message: 'value is required', field: 'value' });
+  });
+
+  await t.test('required false work fine with undefined', () => {
+    let input = {};
+    let rules = { value: { type: 'number', required: false } };
+    let error = validator.validate(input, rules);
+    assert.deepEqual(error, undefined);
+  });
+
+  await t.test('must be a number', () => {
+    let input = { value:'hello'};
+    let rules = { value: { type: 'number'} };
+    let error = validator.validate(input, rules)[0];
+    assert.deepEqual(error, { message: 'value must be a number', field: 'value' });
+  });
+
+  await t.test('must be a number with convert', () => {
+    let input = { value:'123'};
+    let rules = { value: { type: 'number'} };
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
+  });
+
+  await t.test('must be a number without convert', () => {
+    let input = { value:'123'};
+    let rules = { value: { type: 'number'} };
+    let validator = new Validator({convert: false});
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors[0].message, 'value must be a number');
+  });
+
+  await t.test('must be a number', () => {
+    let input = { value:-111.11};
+    let rules = { value: { type: 'number'} };
+    let error = validator.validate(input, rules);
+    assert.deepEqual(error,undefined);
+  });
+
+  await t.test('required true work fine with null', () => {
+    let input = { value: null };
+    let rules = { value: { type: 'number' } };
+    let error = validator.validate(input, rules)[0];
+    assert.deepEqual(error, { message: 'value is required', field: 'value' });
+  });
+
+  await t.test('required false work fine with null', () => {
+    let input = { value: null };
+    let rules = { value: { type: 'number', required: false } };
+    let error = validator.validate(input, rules);
+    assert.deepEqual(error, undefined);
+  });
+
+  await t.test('check min', () => {
+    let input = { value: 80.6 };
+    let rules = { value: { type: 'number', min: 80.5 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors, undefined);
+  });
+
+  await t.test('check min error', () => {
+    let input = { value: 80.4 };
+    let rules = { value: { type: 'number', min: 80.5 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors[0].message, 'value must be greater than 80.5');
+  });
+  
+  await t.test('check max', () => {
+    let input = { value: 80.2 };
+    let rules = { value: { type: 'number', max: 80.6 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors, undefined);
+  });
+
+  await t.test('check max error', () => {
+    let input = { value: 80.9 };
+    let rules = { value: { type: 'number', max: 80.6 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors[0].message, 'value must be less than 80.6');
   });
 });
 
@@ -89,9 +193,10 @@ test('string', async (t) => {
     assert.deepEqual(errors, undefined);
   });
 
-  await t.test('must be an integer', () => {
+  await t.test('must be a string without convert', () => {
     let input = {value:1};
     let rules = { value: { type: 'string' } };
+    let validator = new Validator({convert:false});
     let error = validator.validate(input, rules)[0];
     assert.deepEqual(error.message, 'value must be a string');
   });
@@ -142,7 +247,6 @@ test('string', async (t) => {
 
 
 
-
 test('boolean', async (t) => {
   await t.test('required true with undefined', () => {
     let input = {};
@@ -152,19 +256,29 @@ test('boolean', async (t) => {
   });
 
   await t.test('works with boolean', () => {
-    let input = { value: true };
+    let input = { value: false };
     let rules = { value: { type: 'boolean' } };
     let errors = validator.validate(input, rules);
     assert.deepEqual(errors, undefined);
   });
 
-  await t.test('works with integer', () => {
+  await t.test('works fine with convert', () => {
     let input = { value: 1 };
     let rules = { value: { type: 'boolean' } };
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
+    assert.deepEqual(input.value, true);
+  });
+
+  await t.test('works with integer without convert', () => {
+    let input = { value: 1 };
+    let rules = { value: { type: 'boolean' } };
+    let validator = new Validator({convert:false});
     let errors = validator.validate(input, rules);
     assert.deepEqual(errors[0], { message: 'value must be a boolean', field: 'value' });
   });
 });
+
 
 
 test('translate zn_CN', async (t) => {
@@ -185,6 +299,7 @@ test('translate zn_CN', async (t) => {
   });
 
 });
+
 
 
 test('custom message', async (t) => {
@@ -208,40 +323,12 @@ test('custom message', async (t) => {
     };
 
     let errors = validator.validate(input, rules, messages);
-    console.log(errors);
     assert.deepEqual(errors, [
       { message: "name's length must be less than 10", field: 'name' },
       { message: "水手的年龄必须大于22", field: 'age' }
     ]);
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
