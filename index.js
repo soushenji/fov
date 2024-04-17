@@ -108,7 +108,7 @@ class Validator {
           input[key] = String(input[key]);
           break;
         case 'number':
-          if(!Number.isNaN(Number(input[key]))) {
+          if(!Number.isNaN(Number(input[key])) && input[key]!==null && input[key] !== '') {
             input[key] = Number(input[key]);
           }
           break;
@@ -122,7 +122,7 @@ class Validator {
 
 
   checkInteger(rule, value){
-    if (value === null || Number.isNaN(value)) {
+    if (value === `` || value === null || Number.isNaN(value)) {
       value = undefined;
     }
 
@@ -146,7 +146,7 @@ class Validator {
 
 
   checkNumber(rule, value){
-    if (value === null || Number.isNaN(value)) {
+    if (value ==='' || value === null || Number.isNaN(value)) {
       value = undefined;
     }
 

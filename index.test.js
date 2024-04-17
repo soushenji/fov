@@ -11,22 +11,22 @@ test('integer', async (t) => {
   await t.test('required default work fine with undefined', () => {
     let input = {};
     let rules = { value: { type: 'integer' } };
-    let error = validator.validate(input, rules)[0];
-    assert.deepEqual(error, { message: 'value is required', field: 'value' });
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, [{ message: 'value is required', field: 'value' }]);
   });
 
   await t.test('required true work fine with undefined', () => {
     let input = {};
     let rules = { value: { type: 'integer', required: true } };
-    let error = validator.validate(input, rules)[0];
-    assert.deepEqual(error, { message: 'value is required', field: 'value' });
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, [{ message: 'value is required', field: 'value' }]);
   });
 
   await t.test('required false work fine with undefined', () => {
     let input = {};
     let rules = { value: { type: 'integer', required: false } };
-    let error = validator.validate(input, rules);
-    assert.deepEqual(error, undefined);
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
   });
 
   await t.test('must be an integer', () => {
@@ -53,14 +53,7 @@ test('integer', async (t) => {
 
   await t.test('required true work fine with null', () => {
     let input = { value: null };
-    let rules = { value: { type: 'integer' } };
-    let error = validator.validate(input, rules)[0];
-    assert.deepEqual(error, { message: 'value is required', field: 'value' });
-  });
-
-  await t.test('required true work fine with null', () => {
-    let input = { value: null };
-    let rules = { value: { type: 'integer', required: true } };
+    let rules = { value: { type: 'integer', required: true} };
     let error = validator.validate(input, rules)[0];
     assert.deepEqual(error, { message: 'value is required', field: 'value' });
   });
@@ -71,8 +64,65 @@ test('integer', async (t) => {
     let error = validator.validate(input, rules);
     assert.deepEqual(error, undefined);
   });
-});
 
+  await t.test('required true work fine with ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'integer', required: true} };
+    let error = validator.validate(input, rules)[0];
+    assert.deepEqual(error, { message: 'value is required', field: 'value' });
+  });
+
+  await t.test('required false work fine with ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'integer', required: false } };
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
+  });
+
+  await t.test('required true work fine with not convert ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'integer' } };
+    let validator = new Validator({convert:false})
+    let error = validator.validate(input, rules)[0];
+    assert.deepEqual(error, { message: 'value is required', field: 'value' });
+  });
+
+  await t.test('required false work fine with not convert ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'integer', required: false } };
+    let validator = new Validator({convert:false})
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
+  });
+
+  await t.test('check min', () => {
+    let input = { value: 20 };
+    let rules = { value: { type: 'number', min: 10 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors, undefined);
+  });
+
+  await t.test('check min error', () => {
+    let input = { value: 20 };
+    let rules = { value: { type: 'number', min: 30 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors[0].message, 'value must be greater than 30');
+  });
+  
+  await t.test('check max', () => {
+    let input = { value: 20 };
+    let rules = { value: { type: 'number', max: 30 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors, undefined);
+  });
+
+  await t.test('check max error', () => {
+    let input = { value: 20 };
+    let rules = { value: { type: 'number', max: 10 } };
+    let errors = validator.validate(input, rules);
+    assert.equal(errors[0].message, 'value must be less than 10');
+  });
+});
 
 
 test('number', async (t) => {
@@ -131,6 +181,36 @@ test('number', async (t) => {
     let rules = { value: { type: 'number', required: false } };
     let error = validator.validate(input, rules);
     assert.deepEqual(error, undefined);
+  });
+
+  await t.test('required true work fine with ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'number' } };
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, [{ message: 'value is required', field: 'value' }]);
+  });
+
+  await t.test('required false work fine with ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'number', required: false } };
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
+  });
+
+  await t.test('required true work fine with not convert ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'number' } };
+    let validator = new Validator({convert: false});
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, [{ message: 'value is required', field: 'value' }]);
+  });
+
+  await t.test('required false work fine with not convert ``', () => {
+    let input = { value: `` };
+    let rules = { value: { type: 'number', required: false } };
+    let validator = new Validator({convert: false});
+    let errors = validator.validate(input, rules);
+    assert.deepEqual(errors, undefined);
   });
 
   await t.test('check min', () => {
